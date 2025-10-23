@@ -22,6 +22,7 @@ python -m pip install -r requirements.txt
 
 python -c "from vault.ui.icon_assets import ensure_icon_files; ensure_icon_files()"
 set BUILD_DIR=dist\KakhasPasswordVault
+set INSTALL_DIR=%LOCALAPPDATA%\KakhasPasswordVault
 
 pyinstaller --noconfirm --windowed ^
     --name "KakhasPasswordVault" ^
@@ -40,13 +41,30 @@ if not exist "%DESKTOP%" (
     set DESKTOP=%USERPROFILE%
 )
 
-copy /Y "%BUILD_DIR%\KakhasPasswordVault.exe" "%DESKTOP%\Kakha's Password Vault.exe" >nul
+if exist "%INSTALL_DIR%" (
+    rmdir /s /q "%INSTALL_DIR%"
+)
+
+mkdir "%INSTALL_DIR%"
+xcopy "%BUILD_DIR%" "%INSTALL_DIR%" /E /I /Y >nul
+
+if exist "%DESKTOP%\Kakha's Password Vault.lnk" (
+    del "%DESKTOP%\Kakha's Password Vault.lnk"
+)
+
+powershell -NoProfile -Command ^
+    "$WScript = New-Object -ComObject WScript.Shell;" ^
+    "$Shortcut = $WScript.CreateShortcut('%DESKTOP%\Kakha''s Password Vault.lnk');" ^
+    "$Shortcut.TargetPath = '%INSTALL_DIR%\KakhasPasswordVault.exe';" ^
+    "$Shortcut.WorkingDirectory = '%INSTALL_DIR%';" ^
+    "$Shortcut.IconLocation = '%INSTALL_DIR%\KakhasPasswordVault.exe,0';" ^
+    "$Shortcut.Save()" >nul
 
 echo Launching Kakha's Password Vault...
-start "" "%DESKTOP%\Kakha's Password Vault.exe"
+start "" "%INSTALL_DIR%\KakhasPasswordVault.exe"
 
-echo A desktop shortcut named "Kakha's Password Vault" has been created.
-echo You can run the vault by double-clicking the shortcut any time.
+echo Kakha's Password Vault has been installed to %INSTALL_DIR%.
+echo A desktop shortcut named "Kakha's Password Vault" points to the installed app.
 
 popd
 endlocal

@@ -39,7 +39,8 @@ The batch script will automatically:
 - create an isolated virtual environment,
 - install all dependencies from `requirements.txt`,
 - build a signed-free PyInstaller bundle,
-- copy the resulting `Kakha's Password Vault.exe` to your Windows desktop, and
+- install the app under `%LOCALAPPDATA%\KakhasPasswordVault`,
+- create a desktop shortcut that points to the installed executable, and
 - start the application immediately after the build completes.
 
 Future launches are as simple as double-clicking the desktop shortcut the script leaves behind.
